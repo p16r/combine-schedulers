@@ -72,11 +72,10 @@
   /// this test will begin to fail, which is a good thing! This will force us to address the
   /// complexity that was introduced. Had we used any other scheduler, it would quietly receive this
   /// additional work and the test would continue to pass.
-  public struct UnimplementedScheduler<SchedulerTimeType, SchedulerOptions>: Scheduler
-  where
-    SchedulerTimeType: Strideable,
-    SchedulerTimeType.Stride: SchedulerTimeIntervalConvertible
-  {
+  public struct UnimplementedScheduler<S: Scheduler>: Scheduler {
+    public typealias SchedulerTimeType = S.SchedulerTimeType
+    public typealias SchedulerOptions = S.SchedulerOptions
+
     public var minimumTolerance: SchedulerTimeType.Stride {
       XCTFail(
         """
@@ -206,14 +205,10 @@
     }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == DispatchQueue.SchedulerTimeType,
-    SchedulerOptions == DispatchQueue.SchedulerOptions
-  {
+  extension AnyScheduler<DispatchQueue> {
     /// An unimplemented scheduler that can substitute itself for a dispatch queue.
     public static var unimplemented: Self {
-      DispatchQueue.unimplemented.eraseToAnyScheduler()
+      .init(DispatchQueue.unimplemented)
     }
 
     /// An unimplemented scheduler that can substitute itself for a dispatch queue.
@@ -222,18 +217,14 @@
     ///   messages.
     /// - Returns: An unimplemented scheduler.
     public static func unimplemented(_ prefix: String) -> Self {
-      DispatchQueue.unimplemented(prefix).eraseToAnyScheduler()
+      .init(DispatchQueue.unimplemented(prefix))
     }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == OperationQueue.SchedulerTimeType,
-    SchedulerOptions == OperationQueue.SchedulerOptions
-  {
+  extension AnyScheduler<OperationQueue> {
     /// An unimplemented scheduler that can substitute itself for an operation queue.
     public static var unimplemented: Self {
-      OperationQueue.unimplemented.eraseToAnyScheduler()
+      .init(OperationQueue.unimplemented)
     }
 
     /// An unimplemented scheduler that can substitute itself for an operation queue.
@@ -242,18 +233,14 @@
     ///   messages.
     /// - Returns: An unimplemented scheduler.
     public static func unimplemented(_ prefix: String) -> Self {
-      OperationQueue.unimplemented(prefix).eraseToAnyScheduler()
+      .init(OperationQueue.unimplemented(prefix))
     }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == RunLoop.SchedulerTimeType,
-    SchedulerOptions == RunLoop.SchedulerOptions
-  {
+  extension AnyScheduler<RunLoop> {
     /// An unimplemented scheduler that can substitute itself for a run loop.
     public static var unimplemented: Self {
-      RunLoop.unimplemented.eraseToAnyScheduler()
+      .init(RunLoop.unimplemented)
     }
 
     /// An unimplemented scheduler that can substitute itself for a run loop.
@@ -262,13 +249,15 @@
     ///   messages.
     /// - Returns: An unimplemented scheduler.
     public static func unimplemented(_ prefix: String) -> Self {
-      RunLoop.unimplemented(prefix).eraseToAnyScheduler()
+      .init(RunLoop.unimplemented(prefix))
     }
   }
 
+  @available(iOS, deprecated: 9999.0, message: "Use UnimplementedScheduler type directly instead.")
+  @available(macOS, deprecated: 9999.0, message: "Use UnimplementedScheduler type directly instead.")
+  @available(tvOS, deprecated: 9999.0, message: "Use UnimplementedScheduler type directly instead.")
+  @available(watchOS, deprecated: 9999.0, message: "Use UnimplementedScheduler type directly instead.")
   /// A convenience type to specify an `UnimplementedScheduler` by the scheduler it wraps rather than
   /// by the time type and options type.
-  public typealias UnimplementedSchedulerOf<Scheduler> = UnimplementedScheduler<
-    Scheduler.SchedulerTimeType, Scheduler.SchedulerOptions
-  > where Scheduler: Combine.Scheduler
+  public typealias UnimplementedSchedulerOf<S> = UnimplementedScheduler<S> where S: Combine.Scheduler
 #endif

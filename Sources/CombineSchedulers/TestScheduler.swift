@@ -66,9 +66,9 @@
   /// but this technique can be used to test any publisher that involves Combine's asynchronous
   /// operations.
   ///
-  public final class TestScheduler<SchedulerTimeType, SchedulerOptions>:
-    Scheduler, @unchecked Sendable
-  where SchedulerTimeType: Strideable, SchedulerTimeType.Stride: SchedulerTimeIntervalConvertible {
+  public final class TestScheduler<S: Scheduler>: Scheduler, @unchecked Sendable {
+    public typealias SchedulerTimeType = S.SchedulerTimeType
+    public typealias SchedulerOptions = S.SchedulerOptions
 
     private var lastSequence: UInt = 0
     private let lock = NSRecursiveLock()
@@ -248,9 +248,15 @@
     }
   }
 
+  extension TestScheduler {
+    public func eraseToAnyScheduler() -> AnyScheduler<S> {
+      .init(self)
+    }
+  }
+
   extension DispatchQueue {
     /// A test scheduler of dispatch queues.
-    public static var test: TestSchedulerOf<DispatchQueue> {
+    public static var test: TestScheduler<DispatchQueue> {
       // NB: `DispatchTime(uptimeNanoseconds: 0) == .now())`. Use `1` for consistency.
       .init(now: .init(.init(uptimeNanoseconds: 1)))
     }
@@ -258,7 +264,7 @@
 
   extension UIScheduler {
     /// A test scheduler compatible with type erased UI schedulers.
-    public static var test: TestSchedulerOf<Self> {
+    public static var test: TestScheduler<Self> {
       // NB: `DispatchTime(uptimeNanoseconds: 0) == .now())`. Use `1` for consistency.
       .init(now: .init(.init(uptimeNanoseconds: 1)))
     }
@@ -266,23 +272,25 @@
 
   extension OperationQueue {
     /// A test scheduler of operation queues.
-    public static var test: TestSchedulerOf<OperationQueue> {
+    public static var test: TestScheduler<OperationQueue> {
       .init(now: .init(.init(timeIntervalSince1970: 0)))
     }
   }
 
   extension RunLoop {
     /// A test scheduler of run loops.
-    public static var test: TestSchedulerOf<RunLoop> {
+    public static var test: TestScheduler<RunLoop> {
       .init(now: .init(.init(timeIntervalSince1970: 0)))
     }
   }
 
+  @available(iOS, deprecated: 9999.0, message: "Use TestScheduler type directly instead.")
+  @available(macOS, deprecated: 9999.0, message: "Use TestScheduler type directly instead.")
+  @available(tvOS, deprecated: 9999.0, message: "Use TestScheduler type directly instead.")
+  @available(watchOS, deprecated: 9999.0, message: "Use TestScheduler type directly instead.")
   /// A convenience type to specify a `TestScheduler` by the scheduler it wraps rather than by the
   /// time type and options type.
-  public typealias TestSchedulerOf<Scheduler> = TestScheduler<
-    Scheduler.SchedulerTimeType, Scheduler.SchedulerOptions
-  > where Scheduler: Combine.Scheduler
+  public typealias TestSchedulerOf<Scheduler> = TestScheduler<Scheduler> where Scheduler: Combine.Scheduler
 
   extension Task where Success == Failure, Failure == Never {
     static func megaYield(count: Int = 10) async {

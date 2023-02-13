@@ -10,24 +10,24 @@
   @available(watchOS, deprecated: 9999.0, renamed: "UnimplementedScheduler")
   public typealias FailingScheduler = UnimplementedScheduler
 
-  @available(iOS, deprecated: 9999.0, renamed: "UnimplementedSchedulerOf")
-  @available(macOS, deprecated: 9999.0, renamed: "UnimplementedSchedulerOf")
-  @available(tvOS, deprecated: 9999.0, renamed: "UnimplementedSchedulerOf")
-  @available(watchOS, deprecated: 9999.0, renamed: "UnimplementedSchedulerOf")
-  public typealias FailingSchedulerOf = UnimplementedSchedulerOf
+  @available(iOS, deprecated: 9999.0, renamed: "UnimplementedScheduler")
+  @available(macOS, deprecated: 9999.0, renamed: "UnimplementedScheduler")
+  @available(tvOS, deprecated: 9999.0, renamed: "UnimplementedScheduler")
+  @available(watchOS, deprecated: 9999.0, renamed: "UnimplementedScheduler")
+  public typealias FailingSchedulerOf = UnimplementedScheduler
 
   extension DispatchQueue {
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static var failing: UnimplementedSchedulerOf<DispatchQueue> { Self.unimplemented }
+    public static var failing: UnimplementedScheduler<DispatchQueue> { Self.unimplemented }
 
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static func failing(_ prefix: String) -> UnimplementedSchedulerOf<DispatchQueue> {
+    public static func failing(_ prefix: String) -> UnimplementedScheduler<DispatchQueue> {
       Self.unimplemented(prefix)
     }
   }
@@ -37,13 +37,13 @@
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static var failing: UnimplementedSchedulerOf<OperationQueue> { Self.unimplemented }
+    public static var failing: UnimplementedScheduler<OperationQueue> { Self.unimplemented }
 
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static func failing(_ prefix: String) -> UnimplementedSchedulerOf<OperationQueue> {
+    public static func failing(_ prefix: String) -> UnimplementedScheduler<OperationQueue> {
       Self.unimplemented(prefix)
     }
   }
@@ -53,22 +53,18 @@
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static var failing: UnimplementedSchedulerOf<RunLoop> { Self.unimplemented }
+    public static var failing: UnimplementedScheduler<RunLoop> { Self.unimplemented }
 
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(watchOS, deprecated: 9999.0, renamed: "unimplemented")
-    public static func failing(_ prefix: String) -> UnimplementedSchedulerOf<RunLoop> {
+    public static func failing(_ prefix: String) -> UnimplementedScheduler<RunLoop> {
       Self.unimplemented(prefix)
     }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == DispatchQueue.SchedulerTimeType,
-    SchedulerOptions == DispatchQueue.SchedulerOptions
-  {
+  extension AnyScheduler<DispatchQueue> {
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
@@ -82,11 +78,7 @@
     public static func failing(_ prefix: String) -> Self { Self.unimplemented(prefix) }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == OperationQueue.SchedulerTimeType,
-    SchedulerOptions == OperationQueue.SchedulerOptions
-  {
+  extension AnyScheduler<OperationQueue> {
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
@@ -100,11 +92,7 @@
     public static func failing(_ prefix: String) -> Self { Self.unimplemented(prefix) }
   }
 
-  extension AnyScheduler
-  where
-    SchedulerTimeType == RunLoop.SchedulerTimeType,
-    SchedulerOptions == RunLoop.SchedulerOptions
-  {
+  extension AnyScheduler<RunLoop> {
     @available(iOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(macOS, deprecated: 9999.0, renamed: "unimplemented")
     @available(tvOS, deprecated: 9999.0, renamed: "unimplemented")
@@ -120,73 +108,49 @@
 
   // NB: Deprecated after 0.4.1:
 
-  extension Scheduler
-  where
-    SchedulerTimeType == DispatchQueue.SchedulerTimeType,
-    SchedulerOptions == DispatchQueue.SchedulerOptions
-  {
+  extension DispatchQueue {
     @available(*, deprecated, renamed: "immediate")
-    public static var immediateScheduler: ImmediateSchedulerOf<Self> {
+    public static var immediateScheduler: ImmediateScheduler<DispatchQueue> {
       // NB: `DispatchTime(uptimeNanoseconds: 0) == .now())`. Use `1` for consistency.
       ImmediateScheduler(now: SchedulerTimeType(DispatchTime(uptimeNanoseconds: 1)))
     }
   }
 
-  extension Scheduler
-  where
-    SchedulerTimeType == RunLoop.SchedulerTimeType,
-    SchedulerOptions == RunLoop.SchedulerOptions
-  {
+  extension RunLoop {
     @available(*, deprecated, renamed: "immediate")
-    public static var immediateScheduler: ImmediateSchedulerOf<Self> {
+    public static var immediateScheduler: ImmediateScheduler<RunLoop> {
       ImmediateScheduler(now: SchedulerTimeType(Date(timeIntervalSince1970: 0)))
     }
   }
 
-  extension Scheduler
-  where
-    SchedulerTimeType == OperationQueue.SchedulerTimeType,
-    SchedulerOptions == OperationQueue.SchedulerOptions
-  {
+  extension OperationQueue {
     @available(*, deprecated, renamed: "immediate")
-    public static var immediateScheduler: ImmediateSchedulerOf<Self> {
+    public static var immediateScheduler: ImmediateScheduler<OperationQueue> {
       ImmediateScheduler(now: SchedulerTimeType(Date(timeIntervalSince1970: 0)))
     }
   }
 
-  extension Scheduler
-  where
-    SchedulerTimeType == DispatchQueue.SchedulerTimeType,
-    SchedulerOptions == DispatchQueue.SchedulerOptions
-  {
+  extension DispatchQueue {
     /// A test scheduler of dispatch queues.
     @available(*, deprecated, renamed: "test")
-    public static var testScheduler: TestSchedulerOf<Self> {
+    public static var testScheduler: TestScheduler<DispatchQueue> {
       // NB: `DispatchTime(uptimeNanoseconds: 0) == .now())`. Use `1` for consistency.
       TestScheduler(now: SchedulerTimeType(DispatchTime(uptimeNanoseconds: 1)))
     }
   }
 
-  extension Scheduler
-  where
-    SchedulerTimeType == OperationQueue.SchedulerTimeType,
-    SchedulerOptions == OperationQueue.SchedulerOptions
-  {
+  extension OperationQueue {
     /// A test scheduler of operation queues.
     @available(*, deprecated, renamed: "test")
-    public static var testScheduler: TestSchedulerOf<Self> {
+    public static var testScheduler: TestScheduler<OperationQueue> {
       TestScheduler(now: SchedulerTimeType(Date(timeIntervalSince1970: 0)))
     }
   }
 
-  extension Scheduler
-  where
-    SchedulerTimeType == RunLoop.SchedulerTimeType,
-    SchedulerOptions == RunLoop.SchedulerOptions
-  {
+  extension RunLoop {
     /// A test scheduler of run loops.
     @available(*, deprecated, renamed: "test")
-    public static var testScheduler: TestSchedulerOf<Self> {
+    public static var testScheduler: TestScheduler<RunLoop> {
       TestScheduler(now: SchedulerTimeType(Date(timeIntervalSince1970: 0)))
     }
   }
